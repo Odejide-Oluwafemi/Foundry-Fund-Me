@@ -6,23 +6,23 @@ import {FundMe} from "src/FundMe.sol";
 import {DeployFundMe} from "script/DeployFundMe.s.sol";
 
 contract FundMeTest is Test {
-  FundMe fundMe;
+    FundMe fundMe;
 
-  function setUp() external {
-    fundMe = new DeployFundMe().deployFundMe();
-  }
+    function setUp() external {
+        fundMe = new DeployFundMe().deployFundMe();
+    }
 
-  function testMinimumAmountIsFive() public view {
-    assertEq(fundMe.MINIMUM_USD(), 5 * 10 ** 18);
-  }
+    function testMinimumAmountIsFive() public view {
+        assertEq(fundMe.MINIMUM_USD(), 5 * 10 ** 18);
+    }
 
-  function testOwnerIsSet() public view {
-    assertEq(fundMe.I_OWNER(), msg.sender);
-  }
+    function testOwnerIsSet() public view {
+        assertEq(fundMe.I_OWNER(), msg.sender);
+    }
 
-  function testPriceFeedVersionIsAccurate() public view {
-    uint256 expectedVersion = 4;
-    if (block.chainid == 1) expectedVersion = 6;
-    assertEq(fundMe.getVersion(), expectedVersion);
-  }
+    function testPriceFeedVersionIsAccurate() public view {
+        uint256 expectedVersion = 4;
+        if (block.chainid == 1) expectedVersion = 6;
+        assertEq(fundMe.getVersion(), expectedVersion);
+    }
 }
