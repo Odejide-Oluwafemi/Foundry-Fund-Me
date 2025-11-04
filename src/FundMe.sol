@@ -69,6 +69,10 @@ contract FundMe {
     return sFunderToAmountFunded[funder];
   }
 
+  function getFundersArrayLength() external view returns (uint256) {
+    return sFunders.length;
+  }
+
   receive() external payable {
     fund();
   }

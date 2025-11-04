@@ -16,6 +16,12 @@ contract FundMeTest is Test {
         vm.deal(USER, STARTING_BALANCE);
     }
 
+    modifier funded() {
+        vm.prank(USER);
+        fundMe.fund{value: FUND_AMOUNT}();
+        _;
+    }
+
     function testMinimumAmountIsFive() public view {
         assertEq(fundMe.MINIMUM_USD(), 5 * 10 ** 18);
     }
@@ -41,10 +47,18 @@ contract FundMeTest is Test {
         assertEq(fundMe.getFunder(0), USER);
     }
 
-    function testFundUpdatesFunderBalanceInMapping() public {
-        vm.prank(USER);
-        fundMe.fund{value: FUND_AMOUNT}();
-
+    function testFundUpdatesFunderBalanceInMapping() public funded {
         assertEq(fundMe.getFunderAmount(USER), FUND_AMOUNT);
+    }
+
+    function testFunderOnlyGetsAddedToArrayOnceWhenFundedTwice() public funded funded {
+        assertEq(fundMe.getFundersArrayLength(), 1);
+        assertEq(fundMe.getFunderAmount(USER), FUND_AMOUNT * 2);
+    }
+
+    function testOnlyOwnerCanWithdraw() public funded {
+        vm.expectRevert();
+        vm.prank(USER);
+        fundMe.withdraw();
     }
 }
