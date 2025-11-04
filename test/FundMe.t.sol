@@ -7,9 +7,13 @@ import {DeployFundMe} from "script/DeployFundMe.s.sol";
 
 contract FundMeTest is Test {
     FundMe fundMe;
+    address USER = makeAddr("user");
+    uint256 private constant STARTING_BALANCE = 10 ether;
+    uint256 private constant FUND_AMOUNT = 1 ether;
 
     function setUp() external {
         fundMe = new DeployFundMe().deployFundMe();
+        vm.deal(USER, STARTING_BALANCE);
     }
 
     function testMinimumAmountIsFive() public view {
@@ -24,5 +28,23 @@ contract FundMeTest is Test {
         uint256 expectedVersion = 4;
         if (block.chainid == 1) expectedVersion = 6;
         assertEq(fundMe.getVersion(), expectedVersion);
+    }
+
+    function testFundFailsWithInsufficientAmount() public {
+        vm.expectRevert();
+        fundMe.fund();
+    }
+
+    function testFundUpdatesFundedArray() public {
+        vm.prank(USER);
+        fundMe.fund{value: FUND_AMOUNT}();
+        assertEq(fundMe.getFunder(0), USER);
+    }
+
+    function testFundUpdatesFunderBalanceInMapping() public {
+        vm.prank(USER);
+        fundMe.fund{value: FUND_AMOUNT}();
+
+        assertEq(fundMe.getFunderAmount(USER), FUND_AMOUNT);
     }
 }
